@@ -12,7 +12,31 @@
 @font-face{font-family:'F';src:url('https://cdn.jsdelivr.net/gh/projectnoonnu/2404@1.0/Freesentation-8ExtraBold.woff2') format('woff2');font-weight:800}
 
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:rgba(0,0,0,0)}
-html,body{font-family:'F',-apple-system,system-ui,sans-serif;background:#f4f4f4;color:#191f28;-webkit-font-smoothing:antialiased;overflow-x:hidden;font-size:15px;line-height:1.45;letter-spacing:-0.02em}
+html,body{font-family:'F',-apple-system,system-ui,sans-serif;background:transparent;color:#191f28;-webkit-font-smoothing:antialiased;overflow-x:hidden;font-size:15px;line-height:1.45;letter-spacing:-0.02em;min-height:100vh}
+
+#bg{position:fixed;top:0;left:0;right:0;bottom:0;z-index:-1;transition:opacity .6s ease}
+#bg .bl{position:absolute;border-radius:50%;filter:blur(80px);opacity:0;transition:opacity .8s ease}
+#bg .bl.on{opacity:1}
+/* type 0 - blue */
+#bg .b0a{width:60%;height:50%;top:-5%;left:-10%;background:rgba(49,130,246,.2)}
+#bg .b0b{width:45%;height:45%;bottom:5%;right:-8%;background:rgba(133,184,255,.16)}
+#bg .b0c{width:30%;height:35%;top:15%;right:5%;background:rgba(49,130,246,.09)}
+/* type 1 - green */
+#bg .b1a{width:55%;height:50%;top:-5%;right:-10%;background:rgba(0,196,113,.2)}
+#bg .b1b{width:50%;height:45%;bottom:10%;left:-8%;background:rgba(110,231,183,.16)}
+#bg .b1c{width:28%;height:30%;top:20%;left:10%;background:rgba(0,196,113,.09)}
+/* type 2 - orange */
+#bg .b2a{width:55%;height:50%;bottom:0;left:-10%;background:rgba(232,137,12,.2)}
+#bg .b2b{width:50%;height:45%;top:-5%;right:-5%;background:rgba(251,191,36,.16)}
+#bg .b2c{width:30%;height:30%;bottom:20%;right:10%;background:rgba(232,137,12,.09)}
+/* type 3 - red */
+#bg .b3a{width:50%;height:55%;top:-5%;right:-5%;background:rgba(240,68,82,.2)}
+#bg .b3b{width:55%;height:40%;bottom:5%;left:-10%;background:rgba(248,113,113,.16)}
+#bg .b3c{width:25%;height:30%;top:15%;left:15%;background:rgba(240,68,82,.09)}
+/* type 4 - purple */
+#bg .b4a{width:55%;height:50%;top:-5%;left:-8%;background:rgba(139,92,246,.2)}
+#bg .b4b{width:50%;height:45%;bottom:5%;right:-5%;background:rgba(167,139,250,.16)}
+#bg .b4c{width:30%;height:35%;top:10%;right:15%;background:rgba(139,92,246,.09)}
 
 .hd{height:3px;background:#3861ED}
 
@@ -24,7 +48,8 @@ html,body{font-family:'F',-apple-system,system-ui,sans-serif;background:#f4f4f4;
 
 .ct{max-width:640px;margin:0 auto;padding:12px 16px 80px}
 
-.pn{display:none}.pn.on{display:block}
+.pn{display:none}
+.pn.on{display:block}
 
 /* hero */
 .hr{border-radius:16px;padding:22px 20px;margin-bottom:12px;color:#fff;position:relative;overflow:hidden}
@@ -81,8 +106,13 @@ html,body{font-family:'F',-apple-system,system-ui,sans-serif;background:#f4f4f4;
 .nb{transition:color .2s,border-color .2s,font-weight .15s}
 .st a{transition:all .2s}
 .pn{animation:none}
-.pn.on{animation:fadeIn .6s cubic-bezier(.4,0,.2,1)}
-@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.pn.on{animation:panelIn .85s cubic-bezier(.25,.1,.25,1)}
+@keyframes panelIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* sheet toggle animation */
+.cds{transition:opacity .5s cubic-bezier(.4,0,.2,1),transform .5s cubic-bezier(.4,0,.2,1)}
+.cds.sheet-in{animation:sheetFade .55s cubic-bezier(.25,.1,.25,1)}
+@keyframes sheetFade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
 .c{opacity:0;transform:translateY(16px);transition:opacity .45s cubic-bezier(.4,0,.2,1),transform .45s cubic-bezier(.4,0,.2,1)}
 .c.show{opacity:1;transform:translateY(0)}
@@ -106,6 +136,13 @@ html,body{font-family:'F',-apple-system,system-ui,sans-serif;background:#f4f4f4;
 </head>
 <body>
 
+<div id="bg" style="background:#f4f4f4">
+  <div class="bl b0a on"></div><div class="bl b0b on"></div><div class="bl b0c on"></div>
+  <div class="bl b1a"></div><div class="bl b1b"></div><div class="bl b1c"></div>
+  <div class="bl b2a"></div><div class="bl b2b"></div><div class="bl b2c"></div>
+  <div class="bl b3a"></div><div class="bl b3b"></div><div class="bl b3c"></div>
+  <div class="bl b4a"></div><div class="bl b4b"></div><div class="bl b4c"></div>
+</div>
 <div class="hd"></div>
 
 <div class="nv"><div class="ns" id="nav">
@@ -263,25 +300,44 @@ html,body{font-family:'F',-apple-system,system-ui,sans-serif;background:#f4f4f4;
 
 <script>
 function go(i){
-  var j,b=document.querySelectorAll('#nav .nb'),p;
+  var j,b=document.querySelectorAll('#nav .nb'),p,cards;
   for(j=0;j<5;j++){
     p=document.getElementById('p'+j);
-    if(j===i){p.className='pn on';b[j].className='nb on';}
+    if(j===i){
+      p.className='pn on';
+      b[j].className='nb on';
+      cards=p.querySelectorAll('.c,.hr');
+      for(var k=0;k<cards.length;k++) cards[k].classList.remove('show');
+    }
     else{p.className='pn';b[j].className='nb';}
   }
+  // switch background blobs
+  var blobs=document.querySelectorAll('#bg .bl');
+  for(j=0;j<blobs.length;j++){
+    var cls=blobs[j].className;
+    if(cls.indexOf('b'+i)!==-1) blobs[j].classList.add('on');
+    else blobs[j].classList.remove('on');
+  }
   window.scrollTo(0,document.querySelector('.nv').offsetTop);
-  // re-trigger scroll animations for new panel
-  setTimeout(function(){observe();},50);
+  setTimeout(function(){observe();},80);
 }
 function sw(n,s){
   var a=document.getElementById('p'+n+'a'),
       b=document.getElementById('p'+n+'b'),
-      btns=a.parentElement.querySelectorAll('.st a');
+      btns=a.parentElement.querySelectorAll('.st a'),
+      target=s==='a'?a:b;
   if(a)a.style.display=s==='a'?'':'none';
   if(b)b.style.display=s==='b'?'':'none';
   for(var i=0;i<btns.length;i++){
     btns[i].className=i===(s==='a'?0:1)?'on':'';
   }
+  // reset card animations for the new sheet
+  var cards=target.querySelectorAll('.c');
+  for(var j=0;j<cards.length;j++) cards[j].classList.remove('show');
+  // trigger sheet fade-in animation
+  target.classList.remove('sheet-in');
+  void target.offsetWidth;
+  target.classList.add('sheet-in');
   setTimeout(function(){observe();},50);
 }
 
